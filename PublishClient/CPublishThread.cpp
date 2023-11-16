@@ -5,29 +5,38 @@
 #include <CSocket.h>
 #include "CPublishThread.h"
 
-CPublishThread::CPublishThread(const std::string publishName, const std::string publishNamespace)
+/// <summary>
+/// How the message publisher should identify itself towards the
+/// pubsub server
+/// </summary>
+/// <param name="publishName">Name to identify as</param>
+/// <param name="publishNamespace">Namespace that it will be publishing into</param>
+CPublishThread::CPublishThread(
+    const std::string publishName, const std::string publishNamespace, bool* pbTerminate)
+    : m_publishName(publishName), m_publishNamespace(publishNamespace), m_pbTerminate(pbTerminate)
 {
-    m_publishName = publishName;
-	m_publishNamespace = publishNamespace;
+    thread worker(&CPublishThread::ThreadWorker, this);
+    worker.join();
 }
 
 CPublishThread::~CPublishThread()
 {
 }
 
-bool CPublishThread::Init(bool * pbTerminate)
-{
-    m_pbTerminate = pbTerminate;
-    thread worker(&CPublishThread::ThreadWorker, this);
-
-    worker.join();
-    return false;
-}
+/// <summary>
+/// Static thread function that just calls the 'this' instance
+/// specific function.
+/// </summary>
+/// <param name="pThis"></param>
 void CPublishThread::ThreadWorker(CPublishThread* pThis)
 {
     pThis->PublishData();
 }
 
+/// <summary>
+/// This thread just wakes up every few seconds and send a random message
+/// to the specified namespace.
+/// </summary>
 void CPublishThread::PublishData()
 { 
     bool bTerminate;
@@ -37,7 +46,7 @@ void CPublishThread::PublishData()
     int count = 0;
 
 	cout << "Publish Client worker thread started." << endl;
-	cout << "An event will be published every few seconds..." << endl << endl;
+	cout << "A random message will be sent every few seconds..." << endl << endl;
 
     do
     {
@@ -48,12 +57,12 @@ void CPublishThread::PublishData()
         bTerminate = *m_pbTerminate;
         m_Mutex.unlock();
 
+        // TODO: Server's IP/Port needs to be externally configurable.
+
         if (bTerminate == false && pSocketClient->ConnectTo("127.0.0.1", 8080) == true)
         {
             if (bTerminate == false)
             {
-                //CMessage PublishData(m_publishName, m_publishNamespace, CMessage::DataType::Publish);
-
                 CMessage PublishData(true);
                 PublishData.AddData(CMessage::Key::AppName, m_publishName);
                 PublishData.AddData(CMessage::Key::Namepace, m_publishNamespace);

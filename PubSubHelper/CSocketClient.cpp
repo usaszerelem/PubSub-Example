@@ -3,6 +3,11 @@
 
 using namespace std;
 
+/// <summary>
+/// Initializes a simple socket client to send messages
+/// As we all know, the socket libraries are not the most
+/// type safe.
+/// </summary>
 CSocketClient::CSocketClient()
     : m_Socket(-1)
 {
@@ -16,6 +21,13 @@ CSocketClient::~CSocketClient()
     }
 }
 
+/// <summary>
+/// Attemps to make a connection to a listening processes that should
+/// be on the provided IP address and Port
+/// </summary>
+/// <param name="strIpAddress"></param>
+/// <param name="nServerListenPort"></param>
+/// <returns></returns>
 bool CSocketClient::ConnectTo(std::string strIpAddress, int nServerListenPort)
 {
     struct sockaddr_in serv_addr;
@@ -54,6 +66,12 @@ bool CSocketClient::ConnectTo(std::string strIpAddress, int nServerListenPort)
     return(m_Socket < 0 ? false : true);
 }
 
+/// <summary>
+/// Send the provied string via the connected socket. If send fails
+/// the socket is closed.
+/// </summary>
+/// <param name="strData">Data to send</param>
+/// <returns>Boolean True if information was sent.</returns>
 bool CSocketClient::Send(std::string strData)
 {
     assert(m_Socket >= 0);

@@ -5,12 +5,21 @@
 
 using namespace std;
 
+/// <summary>
+/// Initialize a socket server connection.
+/// </summary>
+/// <param name="pCallback">Implemented callback interfaces to notify of messages</param>
+/// <param name="ListenPort">Port number to start listening on.</param>
+
 CSocketServer::CSocketServer(CSocketServerDataReceived* pCallback, int ListenPort)
     : m_Socket(-1), m_Mutex(), m_Connections(), m_pCallback(pCallback)
 {
     Initialize(ListenPort);
 }
 
+/// <summary>
+/// Frees up all allocated resources and disconnect any connected clients
+/// </summary>
 CSocketServer::~CSocketServer()
 {
     for (std::map<int, CThreadParams*>::iterator it = m_Connections.begin(); it != m_Connections.end(); ++it)
@@ -28,6 +37,11 @@ CSocketServer::~CSocketServer()
     m_Connections.clear();
 }
 
+/// <summary>
+/// Initialize the server socket and configure it for non-blocking
+/// behavior. When all done start listening on the specified port.
+/// </summary>
+/// <param name="ListenPort">Port number to listen on.</param>
 void CSocketServer::Initialize(int ListenPort)
 {
     if (m_Socket >= 0)
@@ -93,6 +107,9 @@ void CSocketServer::Initialize(int ListenPort)
     }
 }
 
+/// <summary>
+/// Now that the server socket is initialized, it is ready to accept connections.
+/// </summary>
 void CSocketServer::AcceptConnections()
 {
     int newSocket;
@@ -111,6 +128,9 @@ void CSocketServer::AcceptConnections()
         {
             cout << endl << "New connection request received." << endl;
 
+            // Create thread specific data so that the new connection
+            // has a dedicated listening thread to accept messages.
+
             CThreadParams* pTData = new CThreadParams();
             pTData->Socket = newSocket;
             pTData->pCallback = m_pCallback;
@@ -124,7 +144,7 @@ void CSocketServer::AcceptConnections()
         }
 
         // Wake up every n seconds and check if there is a connection request.
-        this_thread::sleep_for(chrono::milliseconds(2000ms));
+        this_thread::sleep_for(chrono::milliseconds(1000ms));
 
     } while (m_pCallback->Terminate() == false);
 
@@ -133,6 +153,10 @@ void CSocketServer::AcceptConnections()
     cout << endl << "Socket server stopped listening" << endl;
 }
 
+/// <summary>
+/// Listen for data to arrive.
+/// </summary>
+/// <param name="pParams"></param>
 void CSocketServer::ThreadWorker(CThreadParams* pParams)
 {
     bool bConnected = true;
@@ -173,9 +197,14 @@ void CSocketServer::ThreadWorker(CThreadParams* pParams)
     }
 
     pParams->pSocketServer->ThreadTerminated(pParams->Socket);
-    //delete pParams;
 }
 
+/// <summary>
+/// Read the socket stream while there is data
+/// </summary>
+/// <param name="Socket">Socket that is open</param>
+/// <param name="strRet">Return read data here</param>
+/// <returns>Boolean True if connection is alive, False otherwise</returns>
 bool CSocketServer::ReadReceivedData(int Socket, string &strRet)
 {
     const int BuffSize = 1025;

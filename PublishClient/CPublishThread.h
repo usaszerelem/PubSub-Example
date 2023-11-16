@@ -3,10 +3,8 @@
 class CPublishThread
 {
 public:
-    CPublishThread(const std::string publishName, const std::string publishNamespace);
+    CPublishThread(const std::string publishName, const std::string publishNamespace, bool* pbTerminate);
     ~CPublishThread();
-
-    bool Init(bool* pbTerminate);
 
 private:
     std::string  m_publishName;

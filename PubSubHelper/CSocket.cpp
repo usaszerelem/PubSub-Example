@@ -3,6 +3,11 @@
 
 using namespace std;
 
+/// <summary>
+/// Returns the most likely IP address of the local computer.
+/// This is not 100% as there can be several NIC cards.
+/// </summary>
+/// <returns>Local computer's IP address</returns>
 string GetLocalIp()
 {
     char szBuffer[1024] = { 0 };

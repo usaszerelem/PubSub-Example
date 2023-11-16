@@ -54,12 +54,8 @@ int main(int argc, char* argv[])
                 throw std::runtime_error("WSAStartup Error");
             }
 
-            CPublishThread Publish(strAppName, strPublishNamespace);
-
-            if (Publish.Init(&bTerminate) == true)
-            {
-                cout << "Publish Thread started\n";
-            }
+            CPublishThread Publish(strAppName, strPublishNamespace, &bTerminate);
+            cout << "Publish Thread started\n";
         }
         catch (char* pMsg)
         {
