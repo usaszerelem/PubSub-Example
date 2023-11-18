@@ -3,7 +3,7 @@
 #include "CSocketServer.h"
 #include "CPubSubServer.h"
 
-int main()
+int main(int argc, char* argv[])
 {
     cout << "PubSubServer creates a server connection and waits for" << endl;
     cout << "namespace subscription requests. These requests include the IP address" << endl;

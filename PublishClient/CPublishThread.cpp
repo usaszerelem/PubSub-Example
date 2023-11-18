@@ -5,22 +5,38 @@
 #include <CSocket.h>
 #include "CPublishThread.h"
 
+using namespace std;
+
+bool CPublishThread::m_bTerminate = false;
+
 /// <summary>
 /// How the message publisher should identify itself towards the
 /// pubsub server
 /// </summary>
 /// <param name="publishName">Name to identify as</param>
 /// <param name="publishNamespace">Namespace that it will be publishing into</param>
-CPublishThread::CPublishThread(
-    const std::string publishName, const std::string publishNamespace, bool* pbTerminate)
-    : m_publishName(publishName), m_publishNamespace(publishNamespace), m_pbTerminate(pbTerminate)
+CPublishThread::CPublishThread(CPublishParam params)
+    : m_param(params)
 {
+    assert(m_param.HasAllParams() == true);
+    signal(SIGINT, SignalHandler);
+
     thread worker(&CPublishThread::ThreadWorker, this);
     worker.join();
 }
 
 CPublishThread::~CPublishThread()
 {
+}
+
+// ---------------------------------------------------------------------------
+// Define the function to be called when ctrl-c (SIGINT) is sent to process
+// ---------------------------------------------------------------------------
+
+void CPublishThread::SignalHandler(int signum) {
+    cout << "Caught signal " << signum << endl;
+
+    m_bTerminate = true;
 }
 
 /// <summary>
@@ -39,7 +55,6 @@ void CPublishThread::ThreadWorker(CPublishThread* pThis)
 /// </summary>
 void CPublishThread::PublishData()
 { 
-    bool bTerminate;
 	CSocketClient* pSocketClient = new CSocketClient();
 
     const int MaxMessageCount = 100;
@@ -53,19 +68,13 @@ void CPublishThread::PublishData()
         count++;
         this_thread::sleep_for(chrono::milliseconds(3000ms));
 
-        m_Mutex.lock();
-        bTerminate = *m_pbTerminate;
-        m_Mutex.unlock();
-
-        // TODO: Server's IP/Port needs to be externally configurable.
-
-        if (bTerminate == false && pSocketClient->ConnectTo("127.0.0.1", 8080) == true)
+        if (m_bTerminate == false && pSocketClient->ConnectTo(m_param.m_publishUrl, m_param.m_publishPort) == true)
         {
-            if (bTerminate == false)
+            if (m_bTerminate == false)
             {
                 CMessage PublishData(true);
-                PublishData.AddData(CMessage::Key::AppName, m_publishName);
-                PublishData.AddData(CMessage::Key::Namepace, m_publishNamespace);
+                PublishData.AddData(CMessage::Key::AppName, m_param.m_publishName);
+                PublishData.AddData(CMessage::Key::Namepace, m_param.m_publishNamespace);
                 PublishData.AddData(CMessage::Key::IpAddress, GetLocalIp());
                 PublishData.AddData("time", GetLocalTime());
 
@@ -75,7 +84,7 @@ void CPublishThread::PublishData()
                 pSocketClient->Send(dataToSend);
             }
         }
-    } while (bTerminate == false && count < MaxMessageCount);
+    } while (m_bTerminate == false && count < MaxMessageCount);
 
 	delete pSocketClient;
 

@@ -33,6 +33,9 @@
     <ClInclude Include="LocalTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CmdLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LocalTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

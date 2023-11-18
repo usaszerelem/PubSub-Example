@@ -200,6 +200,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CmdLine.h" />
     <ClInclude Include="CMessage.h" />
     <ClInclude Include="CSocket.h" />
     <ClInclude Include="CSocketClient.h" />
@@ -208,6 +209,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CmdLine.cpp" />
     <ClCompile Include="CMessage.cpp" />
     <ClCompile Include="CSocket.cpp" />
     <ClCompile Include="CSocketClient.cpp" />

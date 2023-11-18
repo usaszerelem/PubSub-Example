@@ -1,17 +1,71 @@
 #include "stdafx.h"
 #include "CPublishThread.h"
+#include <CmdLine.h>
 
 using namespace std;
 
-static bool bTerminate = false;
+static const char* pszKeyPublishName = "appname";
+static const char* pszKeyPublishNamespace = "namespace";
+static const char* pszKeyPublishUrl = "url";
+static const char* pszKeyPublishPort = "port";
 
 // ---------------------------------------------------------------------------
-// Define the function to be called when ctrl-c (SIGINT) is sent to process
 // ---------------------------------------------------------------------------
 
-void signal_callback_handler(int signum) {
-    cout << "Caught signal " << signum << endl;
-    bTerminate = true;
+void DisplaySyntax()
+{
+    cout << "Missing command line parameters. Correct syntax:" << endl << endl;
+    cout << "PublishClient.exe -" << pszKeyPublishName << "=AbcApp ";
+    cout << "-" << pszKeyPublishNamespace << "=AbcApp\\DataProcessed\\Foo ";
+    cout << "-" << pszKeyPublishUrl << "=127.0.0.1 ";
+    cout << "-" << pszKeyPublishPort << "=8080" << endl << endl;
+}
+
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+
+CPublishParam GetInputParams()
+{
+    CPublishParam params;
+
+    cout << "App name. [Enter for 'AbcApp']  ";
+    getline(std::cin, params.m_publishName);
+
+    if (params.m_publishName.length() == 0)
+    {
+        params.m_publishName = "AbcApp";
+    }
+
+    cout << "Namespace. [Enter for 'AbcApp\\DataProcessed\\Foo']: ";
+    getline(std::cin, params.m_publishNamespace);
+
+    if (params.m_publishNamespace.length() == 0)
+    {
+        params.m_publishNamespace = "AbcApp\\DataProcessed\\Foo";
+    }
+
+    cout << "Publish URL. [Enter for loopback]: ";
+    getline(std::cin, params.m_publishUrl);
+
+    if (params.m_publishUrl.length() == 0)
+    {
+        params.m_publishUrl = "127.0.0.1";
+    }
+
+    string strPort;
+    cout << "Port. [Enter for default port 8080]: ";
+    getline(std::cin, strPort);
+
+    if (strPort.length() == 0)
+    {
+        params.m_publishPort = 8080;
+    }
+    else
+    {
+        params.m_publishPort = stoi(strPort);
+    }
+
+    return params;
 }
 
 // ---------------------------------------------------------------------------
@@ -19,55 +73,47 @@ void signal_callback_handler(int signum) {
 
 int main(int argc, char* argv[])
 {
-    cout << "Select type of Publish Client" << endl << endl;
-    cout << "1.- Publish to 'Foo' namespace." << endl;
-    cout << "2.- Publish to 'Bar' namespace." << endl << endl;
-    cout << "Select: ";
+    CmdLine cmdLine(argc, argv);
 
-    char chSelect;
-    cin >> chSelect;
+    CPublishParam params;
 
-    string strAppName;
-    string strPublishNamespace;
+    params.m_publishName = cmdLine.Find(pszKeyPublishName);
+    params.m_publishNamespace = cmdLine.Find(pszKeyPublishName);
+    params.m_publishUrl = cmdLine.Find(pszKeyPublishName);
 
-    if (chSelect == '1')
+    string s = cmdLine.Find(pszKeyPublishName);
+    params.m_publishPort = stoi(s.length() == 0 ? "0" : s);
+
+    if (params.HasAllParams() == false)
     {
-        strAppName = "FooApp";
-        strPublishNamespace = "AbcApp\\DataProcessed\\Foo";
-    }
-    else if (chSelect == '2')
-    {
-        strAppName = "BarApp";
-        strPublishNamespace = "AbcApp\\DataProcessed\\Bar";
+        DisplaySyntax();
+        params = GetInputParams();
     }
 
-    if (strAppName.length() > 0)
+    assert(params.HasAllParams() == true);
+
+    try
     {
-        signal(SIGINT, signal_callback_handler);
+        WSADATA wsaData;
 
-        try
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
         {
-            WSADATA wsaData;
-
-            if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-            {
-                throw std::runtime_error("WSAStartup Error");
-            }
-
-            CPublishThread Publish(strAppName, strPublishNamespace, &bTerminate);
-            cout << "Publish Thread started\n";
-        }
-        catch (char* pMsg)
-        {
-            cout << "Publish client error: " << pMsg << endl;
-        }
-        catch (...)
-        {
-            cout << "Publish client error";
+            throw std::runtime_error("WSAStartup Error");
         }
 
-        WSACleanup();
+        CPublishThread Publish(params);
+        cout << "Publish Thread started\n";
     }
+    catch (char* pMsg)
+    {
+        cout << "Publish client error: " << pMsg << endl;
+    }
+    catch (...)
+    {
+        cout << "Publish client error";
+    }
+
+    WSACleanup();
 
     cout << "Publish Client Terminated\n";
 }
