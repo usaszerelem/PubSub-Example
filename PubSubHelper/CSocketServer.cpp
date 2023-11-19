@@ -11,10 +11,10 @@ using namespace std;
 /// <param name="pCallback">Implemented callback interfaces to notify of messages</param>
 /// <param name="ListenPort">Port number to start listening on.</param>
 
-CSocketServer::CSocketServer(CSocketServerDataReceived* pCallback, int ListenPort)
+CSocketServer::CSocketServer(CSocketServerDataReceived* pCallback, string ListenIp, int ListenPort)
     : m_Socket(-1), m_Mutex(), m_Connections(), m_pCallback(pCallback)
 {
-    Initialize(ListenPort);
+    Initialize(ListenIp, ListenPort);
 }
 
 /// <summary>
@@ -42,7 +42,7 @@ CSocketServer::~CSocketServer()
 /// behavior. When all done start listening on the specified port.
 /// </summary>
 /// <param name="ListenPort">Port number to listen on.</param>
-void CSocketServer::Initialize(int ListenPort)
+void CSocketServer::Initialize(string ListenIp, int ListenPort)
 {
     if (m_Socket >= 0)
     {
@@ -92,9 +92,7 @@ void CSocketServer::Initialize(int ListenPort)
         throw std::runtime_error("Socket Bind error");
     }
 
-    string strIp = GetLocalIp();
-
-    cout << "Server is listening on: " << strIp << ":" << ListenPort << endl;
+    cout << "Server is listening on: " << ListenIp << ":" << ListenPort << endl;
 
     // Defines the maximum length for the queue of pending connections.
     const int backlog = 5;

@@ -12,5 +12,5 @@ public:
 
 private:
     static std::string trim(std::string& str);
-    std::map<const char*, std::string>  m_CmdMap;
+    std::map<std::string, std::string>  m_CmdMap;
 };

@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
         pPubSub = new CPubSubServer();
         signal(SIGINT, CPubSubServer::SignalHandler);
 
-        CSocketServer server(pPubSub, 8080);
+        CSocketServer server(pPubSub, "127.0.0.1", 8080);
         server.AcceptConnections();
     }
     catch (char* pMsg)

@@ -68,13 +68,13 @@ void CPublishThread::PublishData()
         count++;
         this_thread::sleep_for(chrono::milliseconds(3000ms));
 
-        if (m_bTerminate == false && pSocketClient->ConnectTo(m_param.m_publishUrl, m_param.m_publishPort) == true)
+        if (m_bTerminate == false && pSocketClient->ConnectTo(m_param.m_PubSubServerIp, m_param.m_PubSubServerPort) == true)
         {
             if (m_bTerminate == false)
             {
                 CMessage PublishData(true);
-                PublishData.AddData(CMessage::Key::AppName, m_param.m_publishName);
-                PublishData.AddData(CMessage::Key::Namepace, m_param.m_publishNamespace);
+                PublishData.AddData(CMessage::Key::AppName, m_param.m_AppName);
+                PublishData.AddData(CMessage::Key::Namepace, m_param.m_Namespace);
                 PublishData.AddData(CMessage::Key::IpAddress, GetLocalIp());
                 PublishData.AddData("time", GetLocalTime());
 

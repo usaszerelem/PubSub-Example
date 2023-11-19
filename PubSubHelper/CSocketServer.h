@@ -10,7 +10,7 @@ public:
 class CSocketServer
 {
 public:
-    CSocketServer(CSocketServerDataReceived * pCallback, int ListenPort);
+    CSocketServer(CSocketServerDataReceived * pCallback, std::string ListenIp, int ListenPort);
     ~CSocketServer();
 
     void AcceptConnections();
@@ -40,7 +40,7 @@ private:
 
     static void ThreadWorker(CThreadParams * pTData);
     static bool ReadReceivedData(int Socket, std::string & strRet);
-    void Initialize(int ListenPort);
+    void Initialize(std::string ListenIp, int ListenPort);
     void ThreadTerminated(int Socket);
 
 private:

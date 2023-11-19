@@ -38,13 +38,13 @@ CmdLine::CmdLine(int argc, char* argv[])
             string strVal = str.substr(separatorPos + 1);
             strVal = trim(strVal);
             assert(strVal.length() > 0);
-            m_CmdMap[strKey.c_str()] = strVal;
+            m_CmdMap[strKey] = strVal;
         }
         else
         {
             string strKey = str.substr(pos + 1);
             string strVal;
-            m_CmdMap[strKey.c_str()] = strVal;
+            m_CmdMap[strKey] = strVal;
         }
     }
 }
@@ -56,8 +56,8 @@ CmdLine::CmdLine(int argc, char* argv[])
 /// <returns></returns>
 string CmdLine::trim(string& str)
 {
-    str.erase(str.find_last_not_of(' ') + 1);         //suffixing spaces
-    str.erase(0, str.find_first_not_of(' '));       //prefixing spaces
+    str.erase(str.find_last_not_of(' ') + 1);   //suffixing spaces
+    str.erase(0, str.find_first_not_of(' '));   //prefixing spaces
     return str;
 }
 

@@ -4,16 +4,16 @@ class CPublishParam
 {
 public:
     inline CPublishParam()
-        : m_publishName(), m_publishNamespace(), m_publishUrl(), m_publishPort(0)
+        : m_AppName(), m_Namespace(), m_PubSubServerIp(), m_PubSubServerPort(0)
     {
     }
 
     inline CPublishParam operator =(const CPublishParam src)
     {
-        m_publishName = src.m_publishName;
-        m_publishNamespace = src.m_publishNamespace;
-        m_publishUrl = src.m_publishUrl;
-        m_publishPort = src.m_publishPort;
+        m_AppName = src.m_AppName;
+        m_Namespace = src.m_Namespace;
+        m_PubSubServerIp = src.m_PubSubServerIp;
+        m_PubSubServerPort = src.m_PubSubServerPort;
 
         return *this;
     }
@@ -22,10 +22,10 @@ public:
     {
         bool bOk = false;
 
-        if (m_publishName.length() > 0 &&
-            m_publishNamespace.length() > 0 &&
-            m_publishUrl.length() > 0 &&
-            m_publishPort > 0)
+        if (m_AppName.length() > 0 &&
+            m_Namespace.length() > 0 &&
+            m_PubSubServerIp.length() > 0 &&
+            m_PubSubServerPort > 0)
         {
             bOk = true;
         }
@@ -33,10 +33,10 @@ public:
         return (bOk);
     }
 
-    std::string m_publishName;
-    std::string m_publishNamespace;
-    std::string m_publishUrl;
-    int         m_publishPort;
+    std::string m_AppName;
+    std::string m_Namespace;
+    std::string m_PubSubServerIp;
+    int         m_PubSubServerPort;
 };
 
 
